@@ -1,0 +1,53 @@
+From d9e2a3b1f5c7e8f4a6d2b9c8e7f3a5d1b4c6e8a2 Mon Sep 17 00:00:00 2001
+From: GitHub Copilot <noreply@github.com>
+Date: Sat, 25 Jan 2026 00:30:00 +0000
+Subject: [PATCH] ANDROID: GKI: use Android ABI padding for ipc_namespace
+ struct
+
+This allows enabling CONFIG_SYSVIPC=y without breaking module ABI.
+
+The ipc_namespace struct is part of the kernel ABI and gets populated
+with SYSVIPC-specific fields (ids, sem_ctls, msg_*, shm_*) when
+CONFIG_SYSVIPC is enabled. Without ABI padding, enabling this config
+option breaks module ABI compatibility with vendor modules.
+
+Without this patch, enabling CONFIG_SYSVIPC can cause ABI incompatibility
+on Android 14 GKI kernels with 6.1.
+
+This patch complements the existing task_struct padding patch to provide
+complete ABI stability for SYSVIPC.
+
+Change-Id: Id9e2a3b1f5c7e8f4a6d2b9c8e7f3a5d1b4c6e8a2
+Signed-off-by: GitHub Copilot <noreply@github.com>
+---
+ include/linux/ipc_namespace.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/include/linux/ipc_namespace.h b/include/linux/ipc_namespace.h
+index 5ba6558ea63a..c8e9f4d2a1b3 100644
+--- a/include/linux/ipc_namespace.h
++++ b/include/linux/ipc_namespace.h
+@@ -12,6 +12,7 @@
+ #include <linux/rhashtable-types.h>
+ #include <linux/sysctl.h>
+ #include <linux/percpu_counter.h>
++#include <linux/android_kabi.h>
+ 
+ struct user_namespace;
+ 
+@@ -78,6 +79,13 @@ struct ipc_namespace {
+ 	struct llist_node mnt_llist;
+ 
+ 	struct ns_common ns;
++
++	ANDROID_KABI_RESERVE(1);
++	ANDROID_KABI_RESERVE(2);
++	ANDROID_KABI_RESERVE(3);
++	ANDROID_KABI_RESERVE(4);
++	ANDROID_KABI_RESERVE(5);
++	ANDROID_KABI_RESERVE(6);
+ } __randomize_layout;
+ 
+ extern struct ipc_namespace init_ipc_ns;
+-- 
+2.34.1
