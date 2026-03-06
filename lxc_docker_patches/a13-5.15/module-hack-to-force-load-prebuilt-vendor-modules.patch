@@ -1,0 +1,26 @@
+From 0892145615ae2859a6eac139176025a4a46a2b78 Mon Sep 17 00:00:00 2001
+From: GuaiYiHu <guaiyihu@foxmail.com>
+Date: Fri, 6 Mar 2026 14:49:45 +0800
+Subject: [PATCH] module: hack to force load prebuilt vendor modules
+
+---
+ kernel/module.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/kernel/module.c b/kernel/module.c
+index bcadcef319dc..5a81c9579ac3 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4030,6 +4030,9 @@ static int load_module(struct load_info *info, const char __user *uargs,
+ 	long err = 0;
+ 	char *after_dashes;
+ 
++	flags |= MODULE_INIT_IGNORE_MODVERSIONS;
++	flags |= MODULE_INIT_IGNORE_VERMAGIC;
++
+ 	/*
+ 	 * Do the signature check (if any) first. All that
+ 	 * the signature check needs is info->len, it does
+-- 
+2.34.1
+
